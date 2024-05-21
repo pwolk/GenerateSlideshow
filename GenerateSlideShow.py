@@ -11,7 +11,7 @@ For more help, run  GenerateSlideShow.py -h
 
 programDescription = "GenerateSlideShow.py generates a single html file that displays a slideshow with all images from a subfolder, \"img\" by default. If called with no additional configuration, it uses the current directory to write \"slideshow.html\". " 
 
-__version__ = "0.2.5"
+__version__ = "0.2.8"
 __author__ = "Pieter van der Wolk"
 
 __copyright__ = "Copyright 2024, Pieter van der Wolk"
@@ -22,7 +22,7 @@ __status__ = "beta"  # "pre-alpha" / "alpha" / "beta" / "RC" / "RTM" / "GA" / "G
 """  
 Bugs
 
-1. use os.sep 
+1. use os.sep - done 0.2.8 - 21-05-2024 + tested
 2. ...
 
 """
@@ -30,9 +30,10 @@ Bugs
 """
 Feature requests
 
-1. Select which images to process (.gif, .svg, ...)
-2. set title
-3. store all settings in a list
+1. Enable selection which images to process (.gif, .svg, ...)
+2. set title                                                    - done 0.2.6 - 21-05-2024 + tested
+3. set title in .ini
+4. store all settings in a list
 
 
 """
@@ -52,27 +53,26 @@ rootFolderPath = pathlib.Path().absolute()  # path of the current prompt in comm
 slideshowFolderPath = os.path.realpath(os.path.dirname(__file__))    # r'C:\\Users\\me\\Documents\\holiday\\pictures\\slideshow\\'
 programPath = os.path.realpath(os.path.dirname(__file__))            # Path of GenerateSlideShow.py
 
-
+# fallback configuration
 imageFolderName = "img"
 imageHeight = "1500"
 headerTextFile = "header.txt"
 footerTextFile = "footer.txt"
 slideshowFileName = "slideshow.html"
 fVerbose = True
+HeaderToReplace = "<title>slides</title>"
+NewHeader = HeaderToReplace
 
+logging.basicConfig(filename=os.path.join(programPath, 'GenerateSlideShow.log'),  level=logging.DEBUG) # python version 3.9 can do "encoding='utf-8'," additionally here
 
-logging.basicConfig(filename=str(programPath)+'\\'+'GenerateSlideShow.log',  level=logging.DEBUG) # python version 3.9 can do "encoding='utf-8'," additionally here
-
-
+# .ini configuration, overwrites fallback configuration
 config = configparser.ConfigParser()
-
 config.optionxform = str  # otherwise, all keys are converted to lowercase - bug 2
-iniPathAndName = str(programPath)+'\\'+'GenerateSlideShow.ini'
+iniPathAndName = os.path.join(programPath, 'GenerateSlideShow.ini')
 if fVerbose: print(f"Path to .ini is: {iniPathAndName}.")
 config.read(iniPathAndName, 'UTF-8')
 config.sections()
 if fVerbose: print(f"Sections: {config.sections()}")
-
 
 for key in config['path']:  
     logging.info(f"Adding setting : {config['path'][key]}")  # not tested yet
@@ -96,7 +96,9 @@ if config['input files']['FooterTextFile'] != "":
 for key in config['images']:  
     logging.info(f"Adding setting : {config['images'][key]}")  # not tested yet
 if config['images']['ImageHeight'] != "": imageHeight = config['images']['ImageHeight']
+if fVerbose: print(f"Config file sets image height to: {imageHeight}.")
 
+# command line parameter configuration, overwrites all other configurations
 
 parser = argparse.ArgumentParser(description=programDescription, epilog="...have fun!")
 # you get the -h argument for free
@@ -107,6 +109,8 @@ parser.add_argument("-ih", "--imageHeight", help="Default image height, default 
 parser.add_argument("-hf", "--headerfile", help="File with the html headings for the slideshow in the current folder; default: header.txt.", type=str)
 parser.add_argument("-ff", "--footerfile", help="File with the html closing lines for the slideshow in the current folder; default: footer.txt.", type=str)
 parser.add_argument("-ssf", "--slideshowfile", help="Filename for the slideshow html file; default: slideshow.html.", type=str)
+parser.add_argument("-bt", "--BrowserTabText", help="Text displayed in the browser tab; default: slides.", type=str)
+
 
 args = parser.parse_args()
 logging.info(f"Path for slideshow.html : {args.path}")  
@@ -138,6 +142,14 @@ if args.slideshowfile:
     slideshowFileName = args.slideshowfile
 if fVerbose:  print(f"Command line sets name of the slideshow output html-file : {args.slideshowfile}") # default: slideshow.html
 
+if args.BrowserTabText: 
+    NewHeader = "<title>" + args.BrowserTabText + "</title>" 
+if fVerbose:  
+    print(f"Command line sets name of the browser tab: {args.BrowserTabText}") # default: slides
+    print(f"The new header line is: {NewHeader}.")
+
+
+
 if __name__ == "__main__":
 
     """ 
@@ -147,18 +159,20 @@ if __name__ == "__main__":
 
     """
 
-    imageFolderPath = str(slideshowFolderPath) + '\\'+ imageFolderName + '\\'
+    imageFolderPath = os.path.join(slideshowFolderPath, imageFolderName)
     if fVerbose: print(f"The path to the image folder = {imageFolderPath}")
 
-    SlideshowFile = open(slideshowFolderPath+'\\' + slideshowFileName, "w") 
+    SlideshowFile = open(os.path.join(slideshowFolderPath,slideshowFileName), "w") 
 
     # read the headers, copy it to the slideshow file
 
-    with open(str(programPath)+'\\'+headerTextFile,'r') as headersfile:
+    with open(os.path.join(programPath,headerTextFile),'r') as headersfile:
         # read content from headersfile 
         for line in headersfile:            
                 # write content to slideshow file 
-                SlideshowFile.write(line)
+                line = line.replace(HeaderToReplace, NewHeader)
+                SlideshowFile.write(line)  # replace is to change the title on the browser tab
+                if fVerbose: print(line)
     headersfile.close
 
     # write the list of image files
@@ -166,10 +180,11 @@ if __name__ == "__main__":
     for root, dirs, files in os.walk(imageFolderPath):
         files = [ file for file in files if file.endswith( ('.jpg','.JPG','.png','.PNG', '.jpeg', '.JPEG', '.jfif', '.JFIF', '.svg', '.SVG', '.gif', '.GIF') ) ]
         for filename in files:
-            SlideshowFile.write(f"<img class=\"images\" src=\"./{imageFolderName}/"+os.path.join(filename)+"\" imageHeight={imageHeight}>\n")
-            if fVerbose: print(f"<img class=\"images\" src=\"./{imageFolderName}/"+os.path.join(filename)+"\" imageHeight={imageHeight}>")
+            lineWithImage = f"<img class=\"images\" src=\"./{imageFolderName}/"+os.path.join(filename)+f"\" imageHeight={imageHeight}>\n"
+            SlideshowFile.write(lineWithImage)
+            if fVerbose: print(lineWithImage)
 
-    with open(str(programPath)+'\\'+footerTextFile,'r') as footerfile:
+    with open(os.path.join(programPath,footerTextFile),'r') as footerfile:
         # read content from footerfile 
         for line in footerfile:            
                 # write content to slideshow file 
