@@ -7,7 +7,7 @@ It now works for me. Beta.
 ## Bugs
 
 1. use os.sep instead of '//'
-2. 
+2. test .ini file settings
 
 ## Feature requests
 
