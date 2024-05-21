@@ -16,3 +16,7 @@ It now works for me. Beta.
 3. store all settings in a list
 4. cleanup
 
+## HTML / javascript
+
+The HTML / javascript has been cobbled together from various sources from StackOverflow. 
+
