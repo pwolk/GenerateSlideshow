@@ -24,7 +24,7 @@
   
     // Close control
     function visitPage(){
-    window.location='/readers.html';
+    window.location='/index.html';
     }
   
     // Logs the pressed key to the console
