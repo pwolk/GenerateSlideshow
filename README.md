@@ -1,22 +1,21 @@
 # GenerateSlideshow
-GenerateSlideShow.py generates a single html file that displays a slideshow with all images from a subfolder, "img" by default. If called with no additional configuration, it uses the current directory to write "slideshow.html". 
+
+GenerateSlideShow.py generates a single html file that displays a slideshow with all images from a subfolder, "img" by default. If called with no additional configuration, it uses the current directory to write "slideshow.html".
 
 ## Status
+
 It now works for me. Beta.
 
 ## Bugs
 
-1. use os.sep instead of '//'
-2. test .ini file settings
+1. ...
+2. 
 
 ## Feature requests
 
-1. Select which images to process (.gif, .svg, ...)
-2. set title
-3. store all settings in a list
-4. cleanup
+Select which images to process (.gif, .svg, ...)
+store all settings in a list
 
-## HTML / javascript
+# HTML / javascript
 
-The HTML / javascript has been cobbled together from various sources from StackOverflow. 
-
+The HTML / javascript has been cobbled together from various sources from StackOverflow.
