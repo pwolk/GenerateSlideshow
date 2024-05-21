@@ -1,0 +1,77 @@
+
+</div>
+
+<script language='javascript' defer>
+  
+    var slideIndex = 1;
+    showSlides(slideIndex);
+  
+    carousel();
+    function carousel() {
+        setTimeout(carousel, 5000); // Change image every 5 seconds
+        plusSlides(1)
+    }
+  
+    // Next/previous controls
+    function plusSlides(n) {
+    showSlides(slideIndex += n);
+    }
+  
+    // Thumbnail image controls
+    function currentSlide(n) {
+    showSlides(slideIndex = n);
+    }
+  
+    // Close control
+    function visitPage(){
+    window.location='/readers.html';
+    }
+  
+    // Logs the pressed key to the console
+    function logEventKey(e) {
+    console.log(e.key);
+    }
+  
+    // Listen for any keydown event on the document's body
+    document.body.addEventListener('keydown', logEventKey);
+  
+    function showSlides(n) {
+    var i;
+    var slides = document.getElementsByClassName("images");
+  
+    if (n > slides.length) {slideIndex = 1}
+    if (n < 1) {slideIndex = slides.length}
+    for (i = 0; i < slides.length; i++) {
+        slides[i].style.display = "none";
+    }
+    slides[slideIndex-1].style.display = "block";
+    }
+  
+  </script>
+  
+  <script defer>
+    function respondToPressedKey(e) {
+        switch (e.key) {
+        case 'ArrowLeft':
+            // run your ArrowLeft code here
+            console.log('Arrow Left Key Pressed');
+            plusSlides(-1)
+            break;
+        case 'ArrowRight':
+            // run your ArrowRight code here
+            console.log('Arrow Right Key Pressed');
+            plusSlides(1)
+            break;
+        case 'Escape':
+            // run your ArrowRight code here
+            console.log('Escape Key Pressed');
+            break;
+        }
+    }
+    
+    document.body.addEventListener('keydown', respondToPressedKey);
+  </script>
+  </center>
+  </body>
+  </html>
+  
